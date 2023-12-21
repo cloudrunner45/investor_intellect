@@ -1,0 +1,69 @@
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 4fr 2fr;
+    grid-template-rows: auto auto auto ;
+    grid-template-areas:
+      "input gen_info add_watchlist"
+      "watchlist graph info"
+     ". select ."
+  }
+
+
+#stock_input {
+    grid-area: input;
+    position: relative;
+}
+#stock_load{
+    position: absolute; /* Positioned relative to its closest positioned ancestor */
+    background-color: lightblue;
+
+}
+
+#basic_ticker_info{
+    grid-area: gen_info;
+}
+
+#note_input{
+    width: 95%;
+}
+
+#ticker_notes{
+    display: none;
+}
+
+#add_to_watchlist_logout{
+    grid-area: add_watchlist;
+}
+#logout{
+    grid-column: 2;
+    justify-self: end;
+}
+
+.list-group-item{
+    z-index: -1;
+}
+
+
+#watchlist{
+    grid-area: watchlist;
+
+}
+
+#chart{
+    grid-area: graph;
+}
+
+#stock_info{
+    grid-area: info;
+}
+
+#stock_gen_info{
+    height: 100%;
+    overflow: scroll; 
+}
+
+#master_div{
+    grid-area: select;
+}
+

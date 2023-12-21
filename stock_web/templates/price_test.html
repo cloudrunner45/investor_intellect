@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My First Heading</h1>
+<p>My first paragraph.</p>
+<div id="chart-container">
+    <canvas id="myChart"></canvas>
+  </div>
+
+
+<div id="controlers">
+    <input type="text" id="ticker_name">
+    <input type="button" value="get data" onclick="get_data()">
+</div>
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+var chart;
+function get_data(){
+
+    if(chart){
+        chart.destroy();
+    }
+
+    var ticker = document.getElementById("ticker_name").value;
+
+    console.log(ticker);
+    stonk_data = [];
+
+}

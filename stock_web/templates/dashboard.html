@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>var stock_api_key = "{{ stock_api_key }}"</script>
+{% endblock head %}
+
+
+{% block content %}
+
+<div class="grid-container">
+
+ {# ticker search bar #}
+<div id="stock_input">
+    <input type="text" id="ticker_name" placeholder="Search Ticker" oninput="start_display_ticker_list()">
+    
+    <div id="stock_load">
+    </div>
+
+</div>
+
+{# /ticker search bar #}
+
+
+{# basic ticker info #}
+<div id="basic_ticker_info">
+
+</div>
+{# /basic ticker info #}
+
+
+
+
+{# add/remove too watchlist #}
+<div id="add_to_watchlist_logout">
+
+<input type="button" id="add_watchlist" value="add too watchlist " onclick="add_to_watchlist()">
+<input type="button" id="remove_watchlist" value="remove from watchlist " onclick="remove_from_watchlist()">
+<div>
+</div>
+
+
+
+
+
+
+
+
+</div>
+{# /add too watchlist #}
+
+
+
+
+{#  display watchlist #}
+<div id="watchlist" class="list-group">
+<p>watchlist</p>
+</div>
+{# /display watchlist #}
+
+
+
+
+
+
+
+
+
+
+
+{# chart #}
+<div id="chart">
+    <canvas id="myChart"></canvas>
+  </div>
+{# /chart #}
+
+
+
+
+
+{# stock info  #}
+<div id="stock_info">
+<p id="stock_gen_info"></p>
+</div>
+{# /stock info  #}
+
+
+
+
+
+
+
+
+<div id="master_div">
+    {# select #}
+    <div id="gen_select">
+    <button type="button" onclick="show_news(); get_news_input()">news</button>
+    <button type="button" onclick="show_notes(); Data_for_display_notes()"> notes</button>
+    <button type="button" onclick="show_stock_data(); get_data_stock_info()">stock info</button>
+    </div>
+    {# /select #}
+
+
+
+    {# news #}
+    <div id="news">
+    </div>
+    {# /news #}
+
+
+    {# ticker notes #}
+    <div id="ticker_notes">
+        <label for="note_input">Note Content:</label><br>
+        <textarea id="note_input" name="note_input" rows="8" cols="20" oninput="save_note()"></textarea> 
+        {# <button type="submit" onclick="save_note()">save note</button> #}
+    </div>
+    {# /ticker notes #}
+
+
+    {# stock data #}
+    <div id="stock_data">
+        <p id="asset_type"></p>
+        <p id="market_cap"></p>
+        <p id="DiviPerShare"></p>
+        <p id="pe"></p>
+       
+    </div>
+    {# /stock data #}
+
+</div>
+
+</div>
+
+
+{# #############end html################## #}
+
+{# show when clicked bottom #}
+<script>
+
+
+function show_news(){
+    $("#news").show()
+    $("#ticker_notes").hide()
+    $("#stock_data").hide()
+}
+
+function show_notes(){
+    $("#ticker_notes").show()
+    $("#news").hide()
+    $("#stock_data").hide()
+}
+
+function show_stock_data(){
+    $("#stock_data").show()
+    $("#news").hide()
+    $("#ticker_notes").hide()
+}
+
+
+function show_watchlist_button(status){
+    if(status == true){
+        $("#add_watchlist").hide()
+        $("#remove_watchlist").show()
+    } else {
+        $("#remove_watchlist").hide()
+        $("#add_watchlist").show() 
+    }
+    
+}
+
+
+
+
+</script>
+{# /show when clicked bottom #}
+
+
+
+
+
+
+
+
+{# basic ticker info  #}
+
+<script>
+
+function retrive_basic_info(){
+        ticker = "{{ stock }}"
+        $.ajax({
+        url: `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${stock_api_key}`,
+        method: 'GET',
+        success: function(data) {
+            display_info(data['Global Quote'])
+        },
+        error: function(error) {
+            console.error('Error:', error);
+            }
+        })
+}
+
+function display_info(data){
+    let sym = data["01. symbol"]
+    let price = data["05. price"]
+    let change = data["10. change percent"]
+    $("#basic_ticker_info").append(`<span>ticker: ${sym}</span><br> <span>Price: ${price}</span><br> <span> Change: ${change}</span>`)
+
+}
+
+
+
+</script>
+{# /basic ticker info  #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{# ticker search bar #}
+<script>
+
+function start_display_ticker_list(){
+    var enteredValue = document.getElementById('ticker_name').value
+    $.ajax({
+    url: `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${enteredValue}&apikey=${stock_api_key}`,
+    method: 'GET',
+    success: function(data) {
+        display_tickers(data['bestMatches']);
+    },
+    error: function(error) {
+        console.error('Error:', error);
+    }
+});
+}
+
+function display_tickers(data){
+    $("#stock_load").empty();
+    for(stonk of data){
+        let name = stonk["2. name"]
+        let sym = stonk["1. symbol"]
+        var flaskRouteURL = "{{ url_for('dashboard_stock',stock='' ) }}" + sym;
+        $("#stock_load").append(`<a class="stock_display" href="${flaskRouteURL}">${name}</a><br>`);
+    } }
+    
+</script>
+{# /ticker search bar #}
+
+
+
+
+
+
+
+{# stock graph #}
+<script>
+function start_get_graph(ticker_input){
+    const ticker = ticker_input
+    $.ajax({
+    url: `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${stock_api_key}`,
+    method: 'GET',
+    success: function(data) {
+        refine_data(data['Time Series (Daily)'])  
+    },
+    error: function(error){
+        console.error('Error:', error);
+    }            
+})       
+}
+
+function refine_data(data){
+    const stock_list =[];
+    for (let stonk in data){
+        let stonk_object = data[stonk]
+        let high = stonk_object["2. high"]
+        stock_list.push(high);
+        }
+        create_chart(stock_list)
+}
+
+function create_chart(data) {   
+    const ctx = document.getElementById('myChart');
+    const labels = Array.from({ length: data.length }, (_, index) => index + 1); // Creating an array of sequential numbers as labels
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'high of the day',
+          data: data,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        maintainAspectRatio: true, // Disable aspect ratio to allow resizing
+        responsive: true, // Enable responsiveness
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        },
+        plugins: {
+        }
+      }
+    });
+}
+
+
+
+</script>
+{# /stock graph #}
+
+
+
+
+
+{# stock data #}
+<script>
+function get_data_stock_info(){
+    const ticker = "{{ stock }}"
+    $.ajax({
+    url: `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${stock_api_key}`,
+    method: 'GET',
+    success: function(data) {
+        display_analitics(data)
+    },
+    error: function(error) {
+        console.error('Error:', error);
+    }
+});
+}
+
+function display_analitics(data){
+    console.log(data)
+    let market_cap = data["MarketCapitalization"];
+    let dividend = data["DividendPerShare"];
+    let pe = data["PERatio"];
+    let asset_type = data["AssetType"]
+
+
+
+    document.getElementById("market_cap").innerHTML = `Market Cap: ${market_cap}`;
+    document.getElementById("DiviPerShare").innerHTML = `Dividend Per Share: ${dividend}`;
+    document.getElementById("pe").innerHTML = `PE Ratio: ${pe}`;
+    document.getElementById("asset_type").innerHTML = `Asset Type: ${asset_type}`;
+}
+
+function dispaly_summury(){
+    const ticker = "{{ stock }}"
+    $.ajax({
+    url: `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${stock_api_key}`,
+    method: 'GET',
+    success: function(data) {
+        dispaly_sum(data)
+    },
+    error: function(error) {
+        console.error('Error:', error);
+    }
+});
+}
+
+function dispaly_sum(data){
+    let desc= data["Description"]
+    console.log(desc)
+    if(desc == "None" || desc == null  ){
+        document.getElementById("stock_gen_info").innerHTML = "";
+    } else {
+        document.getElementById("stock_gen_info").innerHTML = desc;
+        }  
+    }
+
+
+
+
+</script>
+
+{# stock data #}
+
+
+
+
+
+
+
+{# ticker news #}
+<script>
+function get_news_input(){
+    var ticker = "{{stock}}"
+    $.ajax({
+    url: `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${ticker}&apikey=${stock_api_key}`,
+    method: 'GET',
+    success: function(data) {
+        console.log(data)
+        display_news(data['feed'])
+    },
+    error: function(error) {
+        console.error('Error:', error);
+    }
+});
+}
+
+function display_news(data_input){
+    data = data_input
+    const news_list = []
+    for(let i = 0; i<20; ++i){
+        let stonk_news = data[i]
+        let title = stonk_news['title']
+        let url = stonk_news['url']
+        $("#news").append(`<a href="${url}">${title}</a><br>`)
+        }
+    }
+
+</script>
+{# /ticker news #}
+
+
+
+
+
+
+
+{# watchlist  #}
+<script>
+
+function add_to_watchlist(){
+        const stonk_to_add = "{{ stock }}";
+        send_Data_for_watchlist_db(stonk_to_add);
+    }
+
+function send_Data_for_watchlist_db(data) { 
+            $.ajax({ 
+                url: '/add_watchlist', 
+                type: 'POST', 
+                data: { 'data': data}, 
+                success: function(response) {  
+                    location.reload();
+                }, 
+                error: function(error) { 
+                    console.log(error); 
+                } 
+            }); 
+        } 
+
+function get_watchlist_data_from_db(){
+   $.ajax({
+            url: '/display_watchlist', // Flask endpoint URL
+            type: 'GET', // HTTP method
+            success: function(data) {
+                display_watchlist(data); // Data received from Flask
+                current_ticker_in_watchlist(data)
+                // Handle the received data here (treat 'data' as plain text)
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });    
+    }
+
+function display_watchlist(data){
+    for(ticker of data){
+        var flaskRouteURL = "{{ url_for('dashboard_stock',stock='' ) }}" + ticker;
+        $("#watchlist").append(`<a   href="${flaskRouteURL}">${ticker}</a><br>`);
+        }
+    }
+
+function current_ticker_in_watchlist(data){
+    const active_ticker = "{{ stock }}"
+    const isInArray = data.includes(active_ticker);
+    show_watchlist_button(isInArray)
+    }
+
+
+
+function remove_from_watchlist(){
+    const stonk_to_remove = "{{ stock }}";
+    send_data_to_remove(stonk_to_remove);
+}
+
+function send_data_to_remove(data){
+    $.ajax({ 
+        url: '/remove_watchlist', 
+        type: 'POST', 
+        data: { 'data': data}, 
+        success: function(response) {  
+            location.reload();
+        }, 
+        error: function(error) { 
+            console.log(error); 
+        } 
+    });  
+}
+
+
+
+
+
+
+</script>
+{# /watchlist  #}
+
+
+
+
+
+
+
+
+
+
+
+
+{# notes #}
+<script>
+
+function save_note(){
+    var get_note = document.getElementById("note_input").value;
+    console.log(get_note);
+    send_note(get_note)
+    }
+
+
+
+function send_note(data){
+    var user = "{{ current_user.id }}"
+    var ticker = "{{ stock }}"
+    $.ajax({
+        url: '/get_note',
+        type: 'POST',
+        data: { 'data': data, 'user': user, 'ticker': ticker},
+        success: function(response) {  
+            }, 
+            error: function(error) { 
+                console.log(error); 
+            } 
+        }); 
+    }
+
+
+
+
+
+
+
+
+
+function Data_for_display_notes() { 
+        var user = "{{current_user.id}}"
+        var ticker = "{{ stock }}"
+        $.ajax({ 
+            url: '/display_note', 
+            type: 'POST', 
+            data: { 'user': user, 'ticker': ticker}, 
+            success: function(response) { 
+                display_notes(response)
+            }, 
+            error: function(error) { 
+                console.log(error); 
+            } 
+        }); 
+    } 
+
+
+
+function display_notes(note){
+    var textarea = document.getElementById("note_input");
+    textarea.value = note;
+}
+
+
+</script>
+{# notes #}
+
+
+
+
+
+
+
+<script>
+var stock_sym = "{{stock}}"
+get_watchlist_data_from_db()
+start_get_graph(stock_sym)
+retrive_basic_info()
+dispaly_summury()
+ 
+
+
+
+</script>
+{% endblock %}

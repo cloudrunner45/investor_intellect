@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My First Heading</h1>
+<p>My first paragraph.</p>
+
+<script>
+    fetch('https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=tsla&apikey=FA3JTHTVYULQOQEE')
+    .then(response => response.json())
+    .then(function(data){
+
+        data['feed'].forEach(element => {
+            console.log(element["title"]);
+            console.log(element["url"]);
+        });
+
+       
+    } )
+    .catch(error => console.error('Error:', error));
+
+</script>
+</body>
+</html>
