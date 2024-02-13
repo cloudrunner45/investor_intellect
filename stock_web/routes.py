@@ -99,9 +99,7 @@ def send_watchlist():
 #watchlist#
 
 
-
-
-#notes
+#notes#
 @app.route('/get_note', methods=['POST'])
 def get_note():
     note = request.form.get('data')
