@@ -1,69 +1,29 @@
-
-.grid-container {
-    display: grid;
-    grid-template-columns: 1fr 4fr 2fr;
-    grid-template-rows: auto auto auto ;
-    grid-template-areas:
-      "input gen_info add_watchlist"
-      "watchlist graph info"
-     ". select ."
-  }
-
-
-#stock_input {
-    grid-area: input;
-    position: relative;
-}
-#stock_load{
-    position: absolute; /* Positioned relative to its closest positioned ancestor */
-    background-color: lightblue;
-
+.section-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-#basic_ticker_info{
-    grid-area: gen_info;
+#stock_input { position: relative; }
+
+#stock_load {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    z-index: 1000;
 }
 
-#note_input{
-    width: 95%;
+#watchlist a {
+    display: block;
+    margin-bottom: 0.25rem;
 }
 
-#ticker_notes{
+#ticker_notes,
+#news,
+#stock_data {
     display: none;
 }
-
-#add_to_watchlist_logout{
-    grid-area: add_watchlist;
-}
-#logout{
-    grid-column: 2;
-    justify-self: end;
-}
-
-.list-group-item{
-    z-index: -1;
-}
-
-
-#watchlist{
-    grid-area: watchlist;
-
-}
-
-#chart{
-    grid-area: graph;
-}
-
-#stock_info{
-    grid-area: info;
-}
-
-#stock_gen_info{
-    height: 100%;
-    overflow: scroll; 
-}
-
-#master_div{
-    grid-area: select;
-}
-

@@ -1,21 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-
-<!-- select login or create acount  -->
-
-<div id="welcome_message">
+<div class="text-center">
     <h1>Welcome to Investor Intellect</h1>
+    <div class="mt-4">
+        <a href="{{ url_for('register') }}" class="btn btn-primary me-2">Create Account</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">Login</a>
+    </div>
 </div>
-
-<div id="choose_step">
-    <a href="{{ url_for('register') }}" id="create_user_button">create new acount</a> <br>
-    <a href="{{ url_for('login') }}" id="create_user_button">login</a>
-
-
-</div>
-
-
-
 {% endblock %}
