@@ -92,10 +92,16 @@ def deprocess():
 
 
 
-@app.route('/display_watchlist', methods=['post', 'GET'])
+@app.route('/display_watchlist', methods=['POST', 'GET'])
 def send_watchlist():
+    """Return the current user's watchlist.
+
+    Supports both GET and POST requests to make the endpoint more
+    flexible for different client-side interactions.
+    """
     user_watchlist = get_user_watchlist(current_user.id)
-    return user_watchlist
+    # ``jsonify`` ensures a valid Flask response object for both GET and POST
+    return jsonify(user_watchlist)
 #watchlist#
 
 
