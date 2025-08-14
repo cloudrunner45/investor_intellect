@@ -249,7 +249,7 @@ function display_tickers(data){
     for(stonk of data){
         let name = stonk["2. name"]
         let sym = stonk["1. symbol"]
-        var flaskRouteURL = "{{ url_for('dashboard_stock',stock='' ) }}" + sym;
+        var flaskRouteURL = "{{ url_for('main.dashboard_stock',stock='' ) }}" + sym;
         $("#stock_load").append(`<a class="stock_display" href="${flaskRouteURL}">${name}</a><br>`);
     } }
     
@@ -469,7 +469,7 @@ function get_watchlist_data_from_db(){
 
 function display_watchlist(data){
     for(ticker of data){
-        var flaskRouteURL = "{{ url_for('dashboard_stock',stock='' ) }}" + ticker;
+        var flaskRouteURL = "{{ url_for('main.dashboard_stock',stock='' ) }}" + ticker;
         $("#watchlist").append(`<a   href="${flaskRouteURL}">${ticker}</a><br>`);
         }
     }
