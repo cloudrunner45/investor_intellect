@@ -1,5 +1,6 @@
-# init import
-from stock_web import app
+from stock_web import create_app
+
+app = create_app()
 
 
 
