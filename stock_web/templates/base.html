@@ -2,49 +2,36 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    {% block head %}
-        
-    {% endblock head %}
-    
+    {% block head %}{% endblock head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>var stock_api_key = "{{ stock_api_key }}"</script>
+    <title>Investor Intellect</title>
 </head>
-<title>Investor Intellect</title>
-
-
-</head>
-
-
 <body>
-    <header id="header">
-        <div class="stock_box" id="spy">
-            <span>S&P 500</span><br>
-        </div>
-        <div class="stock_box" id="qqq">
-            <span>NASDAQ</span><br>
-        </div>
-        <div class="stock_box" id="dow">
-            <span>Dow Jones</span><br>
-        </div>
-        <div class="stock_box" id="russell">
-            <span>Russell 2000</span><br>
-        </div>
-    </header>
+<nav class="navbar navbar-light bg-white shadow-sm">
+   <div class="container-fluid justify-content-between">
+      <div class="d-flex flex-row justify-content-center flex-grow-1">
+         <div class="stock_box" id="spy"><span>S&P 500</span><br></div>
+         <div class="stock_box" id="qqq"><span>NASDAQ</span><br></div>
+         <div class="stock_box" id="dow"><span>Dow Jones</span><br></div>
+         <div class="stock_box" id="russell"><span>Russell 2000</span><br></div>
+      </div>
+      <div id="logout">
+        <form action="/logout" method="post">
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+        </form>
+      </div>
+   </div>
+</nav>
 
-
-<div id="logout">
-    <form action="/logout" method="post">
-    <button type="submit">Logout</button>
-    </form>
+<div class="container my-4">
+    {% block content %}{% endblock %}
 </div>
 
-
+<footer class="text-center text-muted my-4">Made By Joey From Earth</footer>
 
 <script>
-
-
-
 function display_logout_button(){
     const currentPage = window.location.pathname;
     const check_len = currentPage.length
@@ -52,70 +39,30 @@ function display_logout_button(){
         $("#logout").hide()
     } else {
         $("#logout").show()
-        }        
     }
-
-  
-
-
-
+}
 function display_ticker(data, div_id){
     let price = data["05. price"]
     let change = data["10. change percent"]
     $(div_id).append(`<span>Price: ${price}</span><br><span> Change: ${change}</span>`)
-    }
-
-
-
+}
 function retrive_api(ticker, div_id){
-        $.ajax({
-    url: `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${stock_api_key}`,
-    method: 'GET',
-    success: function(data) {
-        display_ticker(data['Global Quote'], div_id);
-    },
-    error: function(error) {
-        console.error('Error:', error);
+    $.ajax({
+        url: `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${stock_api_key}`,
+        method: 'GET',
+        success: function(data) {
+            display_ticker(data['Global Quote'], div_id);
+        },
+        error: function(error) {
+            console.error('Error:', error);
         }
     })
 }
-
-
-
-</script>
-
-
-
-
-
-
-
-
-</body>
-
-    <h1 style="text-align: center;">Investor Intellect</h1>
-
-
-
-
-
-
-
-    <!-- show indexes -->
-
-<script>
 retrive_api("SPY", "#spy")
 retrive_api("QQQ", "#qqq")
 retrive_api("IWM", "#russell")
 retrive_api("DIA", "#dow")
 display_logout_button()
 </script>
-
-    {% block content %}
-    {% endblock %}
-
-    <footer>Made By Joey From Earth</footer>
 </body>
 </html>
-
-
