@@ -1,24 +1,29 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
-from dotenv import load_dotenv
-import os
-load_dotenv()  # Loads the .env file
-database_url = os.getenv('DATABASE_URL')
-secret_key = os.getenv('SECRET_KEY')
+from config import Config
 
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config['SECRET_KEY'] = secret_key
-# Initialize SQLAlchemy database
+
 class Base(DeclarativeBase):
-  pass
+    pass
+
 
 db = SQLAlchemy(model_class=Base)
-db.init_app(app)  # Bind SQLAlchemy instance to the Flask app
+login_manager = LoginManager()
 
 
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
+    db.init_app(app)
+    login_manager.init_app(app)
 
+    from .routes import main_bp
+    app.register_blueprint(main_bp)
 
-from stock_web import routes
+    with app.app_context():
+        db.create_all()
+
+    return app
