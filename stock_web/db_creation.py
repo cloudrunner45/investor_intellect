@@ -87,9 +87,12 @@ def save_to_watchlist_db(ticker, user_id):
         db.session.commit()
 
 def remove_from_watchlist(ticker, user_id):
-    stonk_to_remove = db.session.query(Watchlist).filter(Watchlist.user_id == user_id, Watchlist.ticker == ticker).first()
-    db.session.delete(stonk_to_remove)
-    db.session.commit()
+    stonk_to_remove = db.session.query(Watchlist).filter(
+        Watchlist.user_id == user_id, Watchlist.ticker == ticker
+    ).first()
+    if stonk_to_remove is not None:
+        db.session.delete(stonk_to_remove)
+        db.session.commit()
 
 
 

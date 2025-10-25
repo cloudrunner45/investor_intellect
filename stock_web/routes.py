@@ -57,13 +57,14 @@ def login():
             pass
     return render_template('login.html', form=form, stock_api_key=stock_api_key)
 
-# protected dashboard routes
+# Protected dashboard routes (login required)
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', stock='SPY', stock_api_key=stock_api_key)
 
 @app.route('/dashboard/<stock>')
+@login_required
 def dashboard_stock(stock):
     return render_template('dashboard.html', stock=stock, stock_api_key=stock_api_key)
 
